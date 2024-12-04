@@ -29,7 +29,12 @@ namespace RevitAddInBootCamp
 
             {
                 // Prompt user to select elements
+                TaskDialog.Show("Select lines", "Select some lines to convert to Revit elements.");
                 IList<Reference> selectedReferences = uidoc.Selection.PickObjects(ObjectType.Element, "Select model lines");
+
+                // 1. prompt user to select elements
+                /*TaskDialog.Show("Select lines", "Select some lines to convert to Revit elements.");
+                List<Element> pickList = uidoc.Selection.PickElementsByRectangle("Select some elements").ToList();*/
 
                 // Filter for model curves
                 List<ModelCurve> modelCurves = new List<ModelCurve>();
@@ -107,19 +112,18 @@ namespace RevitAddInBootCamp
 
                 void CreateDuct(Document doc, Curve curve)
                 {
-                    // 6. get system types
+                    // Get system types
                     FilteredElementCollector systemCollector = new FilteredElementCollector(doc);
                     systemCollector.OfClass(typeof(MEPSystemType));
 
-                    // 7. get duct system type
+                    // Get duct system type
                     MEPSystemType ductSystem = GetSystemTypeByName(doc, "Supply Air");
 
                     // Get the default duct type
                     DuctType ductType = new FilteredElementCollector(doc)
                         .OfClass(typeof(DuctType))
                         .Cast<DuctType>()
-                        .FirstOrDefault();
-                                                       
+                        .FirstOrDefault();                                                      
                                         
                     if (ductType != null)
                     {
@@ -134,9 +138,8 @@ namespace RevitAddInBootCamp
                     FilteredElementCollector systemCollector = new FilteredElementCollector(doc);
                     systemCollector.OfClass(typeof(MEPSystemType));
 
-                    // 10. get pipe system type
-                    MEPSystemType pipeSystem = GetSystemTypeByName(doc, "Domestic Hot Water");
-                                       
+                    // Get pipe system type
+                    MEPSystemType pipeSystem = GetSystemTypeByName(doc, "Domestic Hot Water");                                       
                     
                     // Get the default pipe type
                     PipeType pipeType = new FilteredElementCollector(doc)
@@ -155,8 +158,27 @@ namespace RevitAddInBootCamp
 
             return Result.Succeeded;
         }
-              
-          internal static PushButtonData GetButtonData()
+
+        private MEPSystemType GetSystemTypeByName(Document doc, string v)
+
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+
+            collector.OfClass(typeof(MEPSystemType));
+
+            foreach (MEPSystemType type in collector)
+
+            {
+                if (type.Name == v)
+
+                    return type;
+            }
+
+            return null;
+
+        }
+
+        internal static PushButtonData GetButtonData()
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btnChallenge02";
